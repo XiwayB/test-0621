@@ -1,7 +1,7 @@
 class Router
   def initialize(controller)
     @controller = controller
-    @running    = true
+    @running = true
   end
 
   def run
@@ -11,6 +11,7 @@ class Router
     while @running
       display_tasks
       action = gets.chomp.to_i
+      print `clear`
       route_action(action)
     end
   end
@@ -22,9 +23,11 @@ class Router
     when 1 then @controller.list
     when 2 then @controller.create
     when 3 then @controller.destroy
-    when 4 then stop
+    when 4 then @controller.import
+    when 5 then @controller.mark_as_done
+    when 6 then stop
     else
-      puts "Please press 1, 2, 3 or 4"
+      puts "Please press 1, 2, 3, 4, 5 or 6"
     end
   end
 
@@ -38,6 +41,9 @@ class Router
     puts "1 - List all recipes"
     puts "2 - Create a new recipe"
     puts "3 - Destroy a recipe"
-    puts "4 - Stop"
+    puts "4 - Import a recipe"
+    puts "5 - Mark recipe as done"
+    puts "6 - Stop and exit the program"
+    print "> "
   end
 end

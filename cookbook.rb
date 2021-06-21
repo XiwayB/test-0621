@@ -1,43 +1,48 @@
-require 'csv'
-require_relative 'recipe'
+require "csv"
+require_relative "recipe"
 
 class Cookbook
-  # TO DO load the CSV file
-  def initialize(csv_file_path)
-    @csv_file_path = csv_file_path
-    @recipes = []
+  def initialize(csv_file)
+    @recipes = [] # <--- <Recipe> instances
+    @csv_file = csv_file
     load_csv
   end
 
-  def load_csv
-    CSV.foreach(@csv_file_path) do |row|
-      @recipes << Recipe.new(row[0], row[1], row[2], row[3])
-    end
+  def add(recipe)
+    @recipes << recipe
+    save_to_csv
   end
 
-  # TO DO return all the recipes
+  def remove_at(index)
+    @recipes.delete_at(index)
+    save_to_csv
+  end
+
   def all
     @recipes
   end
 
-  # TO DO add new recipes in the cookbook
-  def add_recipe(recipe)
-    @recipes << recipe
-    store_csv
+  def mark_recipe_as_done(index)
+    recipe = @recipes[index]
+    recipe.mark_as_done!
+    save_to_csv
   end
 
-  # TO DO remove recipes in the cookbook
-  def remove_recipe(recipe_index)
-    @recipes.delete_at(recipe_index)
-    store_csv
-  end
+  private
 
-  def store_csv
-    CSV.open(@csv_file_path, 'wb') do |csv|
+  def save_to_csv
+    CSV.open(@csv_file, "wb") do |csv|
+      csv << ["name", "description", "rating", "prep_time", "done"]
       @recipes.each do |recipe|
-        csv << [recipe.name, recipe.description]
+        csv << [recipe.name, recipe.description, recipe.rating, recipe.prep_time, recipe.done?]
       end
     end
   end
 
+  def load_csv
+    CSV.foreach(@csv_file, headers: :first_row, header_converters: :symbol) do |row|
+      row[:done] = row[:done] == "true"
+      @recipes << Recipe.new(row)
+    end
+  end
 end
